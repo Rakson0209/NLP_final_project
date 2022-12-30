@@ -1,6 +1,7 @@
 import torch
 from transformers import AutoTokenizer
 from transformers import AutoModelForSeq2SeqLM
+import streamlit as st
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 print(f'Using {device} device')
@@ -9,10 +10,10 @@ model_checkpoint = "yihsuan/mt5_chinese_small"
 tokenizer = AutoTokenizer.from_pretrained(model_checkpoint)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_checkpoint)
 
-model.load_state_dict(torch.load('./models/epoch_9_valid_rouge_42.3221_model_weights.bin'))
+model.load_state_dict(torch.load('./models/epoch_9_valid_rouge_38.3036_model_weights.bin'))
 model = model.to(device)
 
-import streamlit as st
+
 # command in termianl: 'streamlit run streamlit.py'
 # change somewhere in streamlit.py, then you can see the "always rerun" at the top-right of your screen
 # choose "always rerun" to automatically update your app every time you change its source code.
@@ -31,7 +32,7 @@ input_ids = input_ids.to(device)
 
 # sidebar
 st.sidebar.title('Model Parameters') 
-num = st.sidebar.slider('number of titles to generate', 0, 10)
+num = st.sidebar.slider('number of titles to generate', 1, 10)
 temp = st.sidebar.slider('temperature', 0.10, 1.50)
 st.sidebar.info('high temperature means that results are more random')
 
@@ -64,5 +65,6 @@ if genarate == True:
     if article_text == '':
       st.error("input the article !!")
     else:
-      for i in range(num):
-        st.markdown('**title %d :**' % (i), run(num, temp))
+        results = run(num, temp)
+        for i in range(num):
+            st.markdown('**title %d :** %s' % (i, results[i]))
